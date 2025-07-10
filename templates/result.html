@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html>
-<head><title>Prediction</title></head>
+<head>
+    <title>Prediction Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 <body>
-    <h2>{{ player }} is predicted to score {{ points }} points</h2>
-    <a href="/">Try another</a>
+    <div class="container">
+        <h2>{{ player.title() }} is predicted to score:</h2>
+        <h1 style="font-size: 48px; color: #f0db4f;">{{ points }} pts</h1>
+        <a href="/" style="color: #f0db4f; display: block; margin-top: 20px;">← Try another</a>
+    </div>
 </body>
 </html>

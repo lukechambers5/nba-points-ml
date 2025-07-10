@@ -2,16 +2,31 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 import pickle
 import time
-from features import get_player_id, get_player_id, normalize_name
-from nba_api.stats.static import players
+import requests
+from features import get_player_id, normalize_team_input
 from nba_api.stats.endpoints import playergamelog
 
-# Helper to collect training data
-def get_player_training_rows(player_id, team_abbr):
-    log = playergamelog.PlayerGameLog(player_id=player_id, season='2023')
-    df = log.get_data_frames()[0]
-    df['PTS'] = pd.to_numeric(df['PTS'])
+requests.sessions.Session.headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Referer': 'https://www.nba.com/'
+}
 
+# Helper to collect training data with retry
+def get_player_training_rows(player_id, opponent_abbr, retries=3):
+    for attempt in range(retries):
+        try:
+            log = playergamelog.PlayerGameLog(player_id=player_id, season='2023', timeout=60)
+            df = log.get_data_frames()[0]
+            break
+        except Exception as e:
+            print(f"Error fetching player ID {player_id} (attempt {attempt + 1}): {e}")
+            time.sleep(3)
+    else:
+        print(f"Failed to fetch player ID {player_id} after {retries} attempts")
+        return []
+
+    df['PTS'] = pd.to_numeric(df['PTS'], errors='coerce')
     if df.empty or len(df) < 6:
         return []
 
@@ -20,13 +35,15 @@ def get_player_training_rows(player_id, team_abbr):
         prev_5 = df.iloc[i-5:i]
         game = df.iloc[i]
 
+        # Match only if opponent is in the matchup
+        if opponent_abbr not in game['MATCHUP']:
+            continue
+
         recent_ppg = prev_5['PTS'].mean()
         career_ppg = df['PTS'].mean()
-        vs_team_df = df[df['MATCHUP'].str.contains(team_abbr)]
-        vs_team_ppg = vs_team_df['PTS'].mean() if not vs_team_df.empty else 0
 
-        if team_abbr not in game['MATCHUP']:
-            continue
+        vs_team_df = df[df['MATCHUP'].str.contains(opponent_abbr)]
+        vs_team_ppg = vs_team_df['PTS'].mean() if not vs_team_df.empty else 0
 
         row = {
             'recent_ppg': recent_ppg,
@@ -38,21 +55,32 @@ def get_player_training_rows(player_id, team_abbr):
 
     return rows
 
-# Train on multiple players
-players_to_train_on = ['Luka Doncic', 'Stephen Curry', 'LeBron James', 'Jayson Tatum', 'Kevin Durant']
-teams = ['LAL', 'PHX', 'GSW', 'BOS', 'DAL']
+
+# Players to train on
+players_to_train_on = [
+    "Luka Doncic", "Stephen Curry", "LeBron James", "Jayson Tatum", "Joel Embiid",
+    "Nikola Jokic", "Devin Booker", "Jimmy Butler", "Anthony Edwards", "Damian Lillard",
+    "Jamal Murray", "Trae Young", "Donovan Mitchell", "Ja Morant", "Klay Thompson"
+]
+
+# Opponents to train against (use full team names or other shortened names)
+teams_to_train_on = [
+    "mavs", "warriors", "bucks", "sixers", "lakers", "nuggets",
+    "celtics", "suns", "grizzlies", "knicks"
+]
 
 training_data = []
-for name in players_to_train_on:
-    pid = get_player_id(name)
+for player_name in players_to_train_on:
+    pid = get_player_id(player_name)
     if not pid:
         continue
-    for team in teams:
-        rows = get_player_training_rows(pid, team)
+    for team_name in teams_to_train_on:
+        abbr = normalize_team_input(team_name)
+        rows = get_player_training_rows(pid, abbr)
         training_data.extend(rows)
         time.sleep(1)
 
-# Build DataFrame and model
+# Trains model
 df = pd.DataFrame(training_data)
 X = df.drop('actual_pts', axis=1)
 y = df['actual_pts']
@@ -60,7 +88,8 @@ y = df['actual_pts']
 model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X, y)
 
+# Saves model
 with open('model.pkl', 'wb') as f:
     pickle.dump(model, f)
 
-print("✅ Model trained on real NBA game data!")
+print("Model trained successfully")
