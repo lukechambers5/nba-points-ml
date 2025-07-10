@@ -3,6 +3,8 @@ from nba_api.stats.static import players
 import pandas as pd
 import time
 import unicodedata
+from datetime import datetime
+
 
 # in case user puts in different variations of team name
 
@@ -42,7 +44,7 @@ def get_player_id(player_name):
 
 # This function gets their last 5 games average points to account for a recent hot streak or slump
 def get_recent_avg_pts(player_id, num_games=5):
-    log = playergamelog.PlayerGameLog(player_id=player_id, season='2023')
+    log = playergamelog.PlayerGameLog(player_id=player_id, season='ALL')
     time.sleep(0.5)
     df = log.get_data_frames()[0]
     return df['PTS'].head(num_games).mean()
@@ -56,7 +58,7 @@ def get_career_ppg(player_id):
 
 # Gets ppg avg vs the particular team
 def get_vs_team_avg(player_id, opponent_abbr):
-    log = playergamelog.PlayerGameLog(player_id=player_id, season='2023')
+    log = playergamelog.PlayerGameLog(player_id=player_id, season='ALL')
     time.sleep(0.5)
     df = log.get_data_frames()[0]
     vs_df = df[df['MATCHUP'].str.contains(opponent_abbr)]
@@ -67,10 +69,40 @@ def extract_features(player_name, opponent_input):
     player_id = get_player_id(player_name)
     if not player_id:
         return None
+
     opponent_abbr = normalize_team_input(opponent_input)
-    features = {
-        'recent_ppg': get_recent_avg_pts(player_id),
-        'career_ppg': get_career_ppg(player_id),
-        'vs_team_ppg': get_vs_team_avg(player_id, opponent_abbr)
+
+    # Get core features
+    recent = get_recent_avg_pts(player_id)
+    career = get_career_ppg(player_id)
+    vs_team = get_vs_team_avg(player_id, opponent_abbr)
+
+    # Extra info
+    info = commonplayerinfo.CommonPlayerInfo(player_id=player_id).get_data_frames()[0].iloc[0]
+    time.sleep(0.5)
+
+    birthdate_str = info.get('BIRTHDATE')
+    birthdate = datetime.fromisoformat(birthdate_str) if birthdate_str else None
+    age = (datetime.now() - birthdate).days // 365 if birthdate else None
+
+    meta = {
+        'full_name': info.get('DISPLAY_FIRST_LAST', 'Unknown'),
+        'team': info.get('TEAM_NAME', 'Unknown'),
+        'position': info.get('POSITION', 'Unknown'),
+        'height': info.get('HEIGHT', 'Unknown'),
+        'weight': info.get('WEIGHT', 'Unknown'),
+        'age': age,
+        'id': player_id
     }
-    return pd.DataFrame([features])
+
+
+    features = {
+        'recent_ppg': recent,
+        'career_ppg': career,
+        'vs_team_ppg': vs_team,
+    }
+
+    return {
+        'features': pd.DataFrame([features]),
+        'meta': meta
+    }

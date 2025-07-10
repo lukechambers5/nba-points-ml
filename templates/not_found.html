@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Player Not Found</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-white min-h-screen flex flex-col items-center justify-center px-4">
+  <div class="text-center max-w-md">
+    <h1 class="text-4xl font-bold text-yellow-500 mb-4">Oops!</h1>
+    <p class="text-lg mb-2">We couldn't find any NBA data for:</p>
+    <p class="text-2xl font-semibold text-red-400 mb-4">{{ player }}</p>
+
+    <p class="text-gray-400 mb-6">Double-check the spelling, try the full name, or make sure the player is active or recognized in the NBA database.</p>
+
+    <a href="/" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded transition">
+      Try Again
+    </a>
+  </div>
+</body>
+</html>

@@ -12,10 +12,8 @@
     <form method="POST" action="/predict" class="space-y-4">
       <input type="text" name="player" placeholder="Enter player name" required
              class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white" />
-
       <input type="text" name="opponent" placeholder="Enter opponent (e.g., Suns)" required
              class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white" />
-
       <button type="submit"
               class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded w-full">
         Predict
@@ -24,10 +22,29 @@
 
     {% if prediction %}
     <div class="mt-8 p-6 border border-gray-700 rounded-lg bg-gray-900 transition-opacity animate-fade-in">
-      <h2 class="text-2xl font-bold text-yellow-400 mb-2">Predicted: {{ prediction.predicted_pts }} PTS</h2>
-      <p class="text-sm text-gray-400">Recent Avg: {{ prediction.recent_ppg }}</p>
-      <p class="text-sm text-gray-400">Career Avg: {{ prediction.career_ppg }}</p>
-      <p class="text-sm text-gray-400">Vs {{ team }}: {{ prediction.vs_team_ppg }}</p>
+      <h2 class="text-2xl font-bold text-yellow-400 mb-4">
+        Predicted: {{ prediction.predicted_pts }} PTS
+      </h2>
+
+      <div class="flex items-start gap-4">
+        <img src="{{ prediction.headshot_url }}" alt="Player headshot"
+             class="w-28 h-28 object-cover rounded-lg border border-gray-700" />
+
+        <div class="text-sm space-y-1">
+          <p><span class="font-semibold text-white">Player:</span> {{ prediction.player }}</p>
+          <p><span class="font-semibold text-white">Team:</span> {{ prediction.team_name }}</p>
+          <p><span class="font-semibold text-white">Position:</span> {{ prediction.position }}</p>
+          <p><span class="font-semibold text-white">Height:</span> {{ prediction.height }}</p>
+          <p><span class="font-semibold text-white">Weight:</span> {{ prediction.weight }}</p>
+          <p><span class="font-semibold text-white">Age:</span> {{ prediction.age }}</p>
+        </div>
+      </div>
+
+      <div class="mt-6 space-y-1 text-sm text-gray-400">
+        <p>📊 <span class="text-white">Recent Avg (Last 5):</span> {{ prediction.recent_ppg }} PTS</p>
+        <p>📈 <span class="text-white">Career Avg:</span> {{ prediction.career_ppg }} PTS</p>
+        <p>🆚 <span class="text-white">Vs {{ team }}:</span> {{ prediction.vs_team_ppg }} PTS</p>
+      </div>
 
       <div class="mt-4">
         <label class="text-sm text-gray-500">Confidence</label>
@@ -43,7 +60,6 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
     .animate-fade-in {
       animation: fade-in 0.6s ease-out;
     }

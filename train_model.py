@@ -6,6 +6,7 @@ import requests
 from features import get_player_id, normalize_team_input
 from nba_api.stats.endpoints import playergamelog
 
+# Setup headers to avoid 403 errors from NBA API
 requests.sessions.Session.headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124',
     'Accept-Language': 'en-US,en;q=0.9',
@@ -16,7 +17,7 @@ requests.sessions.Session.headers = {
 def get_player_training_rows(player_id, opponent_abbr, retries=3):
     for attempt in range(retries):
         try:
-            log = playergamelog.PlayerGameLog(player_id=player_id, season='2023', timeout=60)
+            log = playergamelog.PlayerGameLog(player_id=player_id, season='ALL', timeout=60)
             df = log.get_data_frames()[0]
             break
         except Exception as e:
@@ -55,20 +56,23 @@ def get_player_training_rows(player_id, opponent_abbr, retries=3):
 
     return rows
 
-
 # Players to train on
 players_to_train_on = [
-    "Luka Doncic", "Stephen Curry", "LeBron James", "Jayson Tatum", "Joel Embiid",
-    "Nikola Jokic", "Devin Booker", "Jimmy Butler", "Anthony Edwards", "Damian Lillard",
-    "Jamal Murray", "Trae Young", "Donovan Mitchell", "Ja Morant", "Klay Thompson"
+    "Stephen Curry", "Luka Doncic", "Joel Embiid", "Jayson Tatum", "Kevin Durant",
+    "De'Aaron Fox", "Jaylen Brown", "Brandon Ingram", "Jalen Brunson", "Pascal Siakam",
+    "Tyrese Haliburton", "Anthony Edwards", "Jalen Green", "Paolo Banchero", "Scottie Barnes",
+    "Maxi Kleber", "Aaron Gordon", "Alex Caruso", "Royce O'Neale", "Kevon Looney",
+    "Georges Niang", "Dennis Smith Jr.", "T.J. McConnell", "Thaddeus Young",
+    "Derrick Jones Jr.", "Tristan Vukcevic", "Kai Jones", "Ish Smith", "Sandro Mamukelashvili"
 ]
 
-# Opponents to train against (use full team names or other shortened names)
+# Opponents to train against
 teams_to_train_on = [
     "mavs", "warriors", "bucks", "sixers", "lakers", "nuggets",
     "celtics", "suns", "grizzlies", "knicks"
 ]
 
+# Collect training data
 training_data = []
 for player_name in players_to_train_on:
     pid = get_player_id(player_name)
@@ -80,16 +84,20 @@ for player_name in players_to_train_on:
         training_data.extend(rows)
         time.sleep(1)
 
-# Trains model
+# Train model
 df = pd.DataFrame(training_data)
+if df.empty:
+    raise ValueError("No training data collected. Exiting.")
+
 X = df.drop('actual_pts', axis=1)
 y = df['actual_pts']
 
+# Fit with DataFrame so that column names are preserved
 model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X, y)
 
-# Saves model
+# Save model and feature columns together to avoid feature name warnings
 with open('model.pkl', 'wb') as f:
-    pickle.dump(model, f)
+    pickle.dump({'model': model, 'feature_names': X.columns.tolist()}, f)
 
-print("Model trained successfully")
+print("Model trained and saved successfully.")
