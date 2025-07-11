@@ -21,9 +21,12 @@ def predict():
     player = request.form['player']
     opponent = request.form['opponent']
 
-    result_data = extract_features(player, opponent)
-    if result_data is None:
-        return render_template('not_found.html', player=player)
+    try:
+        result_data = extract_features(player, opponent)
+        if result_data is None:
+            return render_template('not_found.html', player=player)
+    except Exception as e:
+        return render_template('error.html', message="The NBA data couldn't be fetched. Try again.")
 
     features_df = result_data['features']
     meta = result_data['meta']

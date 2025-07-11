@@ -37,7 +37,7 @@ def get_player_id(player_name):
 def get_recent_avg_pts(player_id, num_games=5):
     try:
         if player_id not in CACHE["logs"]:
-            log = playergamelog.PlayerGameLog(player_id=player_id, season='2025', timeout=10)
+            log = playergamelog.PlayerGameLog(player_id=player_id, season='2025', timeout=5)
             CACHE["logs"][player_id] = log.get_data_frames()[0]
         df = CACHE["logs"][player_id]
         return df['PTS'].head(num_games).mean()
@@ -59,7 +59,7 @@ def get_career_ppg(player_id):
 def get_vs_team_avg(player_id, opponent_abbr):
     try:
         if player_id not in CACHE["logs"]:
-            log = playergamelog.PlayerGameLog(player_id=player_id, season='2025', timeout=10)
+            log = playergamelog.PlayerGameLog(player_id=player_id, season='2025', timeout=5)
             CACHE["logs"][player_id] = log.get_data_frames()[0]
         df = CACHE["logs"][player_id]
         vs_df = df[df['MATCHUP'].str.contains(opponent_abbr)]

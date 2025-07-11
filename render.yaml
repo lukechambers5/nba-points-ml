@@ -3,5 +3,5 @@ services:
     name: nba-ml-app
     env: python
     buildCommand: ""
-    startCommand: gunicorn app:app
+    startCommand: gunicorn app:app --timeout 30
     plan: free
