@@ -57,7 +57,9 @@ def get_recent_avg_pts(player_id, num_games=5):
             log = playergamelog.PlayerGameLog(player_id=player_id, season='2025', timeout=5)
             CACHE["logs"][player_id] = log.get_data_frames()[0]
         df = CACHE["logs"][player_id]
-        print(f"[get_recent_avg_pts] Sample data:\n{df.head()}")
+        print(f"[get_recent_avg_pts] DF columns: {df.columns}")
+        print(f"[get_recent_avg_pts] DF head:\n{df.head()}")
+        print(f"[get_recent_avg_pts] DF shape: {df.shape}")
         return df['PTS'].head(num_games).mean()
     except Exception as e:
         print(f"[get_recent_avg_pts] Error: {e}")
