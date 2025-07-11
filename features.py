@@ -7,6 +7,8 @@ from datetime import datetime
 
 
 # in case user puts in different variations of team name
+PLAYER_LIST = players.get_players()
+
 
 team_name_map = {
     "hawks": "ATL", "celtics": "BOS", "nets": "BKN", "hornets": "CHA", "bulls": "CHI",
@@ -27,39 +29,30 @@ def normalize_name(name):
     return unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore').decode('utf-8').lower()
 
 def get_player_id(player_name):
-    player_list = players.get_players()
     input_name = normalize_name(player_name)
-
-    # Tries to match full player name
-    for p in player_list:
+    for p in PLAYER_LIST:
         if normalize_name(p['full_name']) == input_name:
             return p['id']
-    
-    # if user doesn't put full name, then it searches for a partial match with user's name
-    for p in player_list:
+    for p in PLAYER_LIST:
         if input_name in normalize_name(p['full_name']):
             return p['id']
-    
     return None
 
 # This function gets their last 5 games average points to account for a recent hot streak or slump
 def get_recent_avg_pts(player_id, num_games=5):
     log = playergamelog.PlayerGameLog(player_id=player_id, season='2025')
-    time.sleep(0.5)
     df = log.get_data_frames()[0]
     return df['PTS'].head(num_games).mean()
 
 # Just gets career ppg
 def get_career_ppg(player_id):
     info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
-    time.sleep(0.5)
     career = info.get_data_frames()[1]
     return career['PTS'].values[0]
 
 # Gets ppg avg vs the particular team
 def get_vs_team_avg(player_id, opponent_abbr):
-    log = playergamelog.PlayerGameLog(player_id=player_id, season='ALL')
-    time.sleep(0.5)
+    log = playergamelog.PlayerGameLog(player_id=player_id, season='2025')
     df = log.get_data_frames()[0]
     vs_df = df[df['MATCHUP'].str.contains(opponent_abbr)]
     return vs_df['PTS'].mean() if not vs_df.empty else 0
@@ -78,8 +71,9 @@ def extract_features(player_name, opponent_input):
     vs_team = get_vs_team_avg(player_id, opponent_abbr)
 
     # Extra info
-    info = commonplayerinfo.CommonPlayerInfo(player_id=player_id).get_data_frames()[0].iloc[0]
-    time.sleep(0.5)
+    info_obj = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
+    bio_df, career_df = info_obj.get_data_frames()
+    info = bio_df.iloc[0]
 
     birthdate_str = info.get('BIRTHDATE')
     birthdate = datetime.fromisoformat(birthdate_str) if birthdate_str else None
