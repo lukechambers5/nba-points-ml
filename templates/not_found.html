@@ -2,18 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Player Not Found</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-950 text-white min-h-screen flex flex-col items-center justify-center px-4">
-  <div class="text-center max-w-md">
-    <h1 class="text-4xl font-bold text-yellow-500 mb-4">Oops!</h1>
-    <p class="text-lg mb-2">We couldn't find any NBA data for:</p>
-    <p class="text-2xl font-semibold text-red-400 mb-4">{{ player }}</p>
+<body class="bg-gray-950 text-white min-h-screen flex flex-col items-center justify-center px-4 py-10">
+  <div class="text-center max-w-sm sm:max-w-md w-full space-y-4">
+    <h1 class="text-3xl sm:text-4xl font-bold text-yellow-500">Oops!</h1>
 
-    <p class="text-gray-400 mb-6">Double-check the spelling, try the full name, or make sure the player is active or recognized in the NBA database.</p>
+    <p class="text-base sm:text-lg">We couldn't find any NBA data for:</p>
+    <p class="text-xl sm:text-2xl font-semibold text-red-400 break-words">{{ player }}</p>
 
-    <a href="/" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded transition">
+    <p class="text-sm sm:text-base text-gray-400">
+      Double-check the spelling, try the full name, or make sure the player is active or recognized in the NBA database.
+    </p>
+
+    <a href="/" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded w-full sm:w-auto transition text-center">
       Try Again
     </a>
   </div>

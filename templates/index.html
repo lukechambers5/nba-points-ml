@@ -2,41 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NBA Points Predictor</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-950 text-white p-6 min-h-screen">
+<body class="bg-gray-950 text-white px-4 py-6 min-h-screen">
   <div class="max-w-xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">NBA Points Predictor</h1>
+    <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center">NBA Points Predictor</h1>
 
     <form method="POST" action="/predict" class="space-y-4">
       <input type="text" name="player" placeholder="Enter player name" required
-             class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white" />
+             class="w-full p-3 rounded bg-gray-800 border border-gray-600 text-white text-base" />
       <input type="text" name="opponent" placeholder="Enter opponent (e.g., Suns)" required
-             class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white" />
+             class="w-full p-3 rounded bg-gray-800 border border-gray-600 text-white text-base" />
       <button type="submit"
-              class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded w-full">
+              class="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-4 rounded w-full text-base">
         Predict
       </button>
     </form>
 
     {% if prediction %}
-    <div class="mt-8 p-6 border border-gray-700 rounded-lg bg-gray-900 transition-opacity animate-fade-in">
-      <h2 class="text-2xl font-bold text-yellow-400 mb-4">
+    <div class="mt-8 p-4 sm:p-6 border border-gray-700 rounded-lg bg-gray-900 transition-opacity animate-fade-in">
+      <h2 class="text-xl sm:text-2xl font-bold text-yellow-400 mb-4 text-center">
         Predicted: {{ prediction.predicted_pts }} PTS
       </h2>
 
-      <div class="flex items-start gap-4">
+      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4">
         <img src="{{ prediction.headshot_url }}" alt="Player headshot"
-             class="w-28 h-28 object-cover rounded-lg border border-gray-700" />
+             class="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-lg border border-gray-700" />
 
-        <div class="text-sm space-y-1">
-          <p><span class="font-semibold text-white">Player:</span> {{ prediction.player }}</p>
-          <p><span class="font-semibold text-white">Team:</span> {{ prediction.team_name }}</p>
-          <p><span class="font-semibold text-white">Position:</span> {{ prediction.position }}</p>
-          <p><span class="font-semibold text-white">Height:</span> {{ prediction.height }}</p>
-          <p><span class="font-semibold text-white">Weight:</span> {{ prediction.weight }}</p>
-          <p><span class="font-semibold text-white">Age:</span> {{ prediction.age }}</p>
+        <div class="text-sm space-y-1 w-full">
+          <p><span class="font-semibold">Player:</span> {{ prediction.player }}</p>
+          <p><span class="font-semibold">Team:</span> {{ prediction.team_name }}</p>
+          <p><span class="font-semibold">Position:</span> {{ prediction.position }}</p>
+          <p><span class="font-semibold">Height:</span> {{ prediction.height }}</p>
+          <p><span class="font-semibold">Weight:</span> {{ prediction.weight }}</p>
+          <p><span class="font-semibold">Age:</span> {{ prediction.age }}</p>
         </div>
       </div>
 
