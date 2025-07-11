@@ -3,3 +3,4 @@ nba_api
 pandas
 scikit-learn
 requests
+gunicorn
