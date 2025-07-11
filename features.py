@@ -25,14 +25,97 @@ CACHE = {
 }
 
 team_name_map = {
-    "hawks": "ATL", "celtics": "BOS", "nets": "BKN", "hornets": "CHA", "bulls": "CHI",
-    "cavaliers": "CLE", "mavs": "DAL", "mavericks": "DAL", "nuggets": "DEN", "pistons": "DET",
-    "warriors": "GSW", "rockets": "HOU", "pacers": "IND", "clippers": "LAC", "lakers": "LAL",
-    "grizzlies": "MEM", "heat": "MIA", "bucks": "MIL", "timberwolves": "MIN", "pelicans": "NOP",
-    "knicks": "NYK", "thunder": "OKC", "magic": "ORL", "sixers": "PHI", "76ers": "PHI",
-    "suns": "PHX", "blazers": "POR", "kings": "SAC", "spurs": "SAS", "raptors": "TOR",
-    "jazz": "UTA", "wizards": "WAS"
+    # Atlanta Hawks
+    "atl": "ATL", "atlanta": "ATL", "hawks": "ATL", "atlanta hawks": "ATL",
+
+    # Boston Celtics
+    "bos": "BOS", "boston": "BOS", "celtics": "BOS", "boston celtics": "BOS",
+
+    # Brooklyn Nets
+    "bkn": "BKN", "brooklyn": "BKN", "nets": "BKN", "brooklyn nets": "BKN",
+
+    # Charlotte Hornets
+    "cha": "CHA", "charlotte": "CHA", "hornets": "CHA", "charlotte hornets": "CHA",
+
+    # Chicago Bulls
+    "chi": "CHI", "chicago": "CHI", "bulls": "CHI", "chicago bulls": "CHI",
+
+    # Cleveland Cavaliers
+    "cle": "CLE", "cleveland": "CLE", "cavs": "CLE", "cavaliers": "CLE", "cleveland cavaliers": "CLE",
+
+    # Dallas Mavericks
+    "dal": "DAL", "dallas": "DAL", "mavs": "DAL", "mavericks": "DAL", "dallas mavericks": "DAL",
+
+    # Denver Nuggets
+    "den": "DEN", "denver": "DEN", "nuggets": "DEN", "denver nuggets": "DEN",
+
+    # Detroit Pistons
+    "det": "DET", "detroit": "DET", "pistons": "DET", "detroit pistons": "DET",
+
+    # Golden State Warriors
+    "gs": "GSW", "gsw": "GSW", "golden state": "GSW", "warriors": "GSW", "golden state warriors": "GSW",
+
+    # Houston Rockets
+    "hou": "HOU", "houston": "HOU", "rockets": "HOU", "houston rockets": "HOU",
+
+    # Indiana Pacers
+    "ind": "IND", "indiana": "IND", "pacers": "IND", "indiana pacers": "IND",
+
+    # LA Clippers
+    "lac": "LAC", "clippers": "LAC", "la clippers": "LAC", "los angeles clippers": "LAC",
+
+    # LA Lakers
+    "lal": "LAL", "lakers": "LAL", "la lakers": "LAL", "los angeles lakers": "LAL",
+
+    # Memphis Grizzlies
+    "mem": "MEM", "memphis": "MEM", "grizzlies": "MEM", "memphis grizzlies": "MEM",
+
+    # Miami Heat
+    "mia": "MIA", "miami": "MIA", "heat": "MIA", "miami heat": "MIA",
+
+    # Milwaukee Bucks
+    "mil": "MIL", "milwaukee": "MIL", "bucks": "MIL", "milwaukee bucks": "MIL",
+
+    # Minnesota Timberwolves
+    "min": "MIN", "minnesota": "MIN", "wolves": "MIN", "timberwolves": "MIN", "minnesota timberwolves": "MIN",
+
+    # New Orleans Pelicans
+    "nop": "NOP", "pelicans": "NOP", "new orleans": "NOP", "new orleans pelicans": "NOP",
+
+    # New York Knicks
+    "nyk": "NYK", "knicks": "NYK", "new york": "NYK", "new york knicks": "NYK",
+
+    # Oklahoma City Thunder
+    "okc": "OKC", "thunder": "OKC", "oklahoma city": "OKC", "oklahoma city thunder": "OKC",
+
+    # Orlando Magic
+    "orl": "ORL", "orlando": "ORL", "magic": "ORL", "orlando magic": "ORL",
+
+    # Philadelphia 76ers
+    "phi": "PHI", "sixers": "PHI", "76ers": "PHI", "philadelphia": "PHI", "philadelphia 76ers": "PHI",
+
+    # Phoenix Suns
+    "phx": "PHX", "phoenix": "PHX", "suns": "PHX", "phoenix suns": "PHX",
+
+    # Portland Trail Blazers
+    "por": "POR", "portland": "POR", "blazers": "POR", "trail blazers": "POR", "portland trail blazers": "POR",
+
+    # Sacramento Kings
+    "sac": "SAC", "sacramento": "SAC", "kings": "SAC", "sacramento kings": "SAC",
+
+    # San Antonio Spurs
+    "sas": "SAS", "san antonio": "SAS", "spurs": "SAS", "san antonio spurs": "SAS",
+
+    # Toronto Raptors
+    "tor": "TOR", "toronto": "TOR", "raptors": "TOR", "toronto raptors": "TOR",
+
+    # Utah Jazz
+    "uta": "UTA", "utah": "UTA", "jazz": "UTA", "utah jazz": "UTA",
+
+    # Washington Wizards
+    "was": "WAS", "washington": "WAS", "wizards": "WAS", "washington wizards": "WAS",
 }
+
 
 def normalize_team_input(user_input):
     name = user_input.strip().lower()
