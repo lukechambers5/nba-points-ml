@@ -44,7 +44,7 @@ def get_player_id(player_name):
 
 # This function gets their last 5 games average points to account for a recent hot streak or slump
 def get_recent_avg_pts(player_id, num_games=5):
-    log = playergamelog.PlayerGameLog(player_id=player_id, season='ALL')
+    log = playergamelog.PlayerGameLog(player_id=player_id, season='2025')
     time.sleep(0.5)
     df = log.get_data_frames()[0]
     return df['PTS'].head(num_games).mean()
