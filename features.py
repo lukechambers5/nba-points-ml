@@ -7,14 +7,18 @@ from datetime import datetime
 # Cache API responses in memory
 CACHE = {
     "players": players.get_players(),
-    "logs": {},         # player_id -> DataFrame
-    "common_info": {}   # player_id -> (bio_df, career_df)
+    "logs": {},
+    "common_info": {}
 }
 
 team_name_map = {
-    # Add all nicknames here as before...
-    "mavs": "DAL", "mavericks": "DAL", "dallas": "DAL", "dal": "DAL", "dallas mavericks": "DAL",
-    # (Repeat for all other teams as shown previously)
+    "hawks": "ATL", "celtics": "BOS", "nets": "BKN", "hornets": "CHA", "bulls": "CHI",
+    "cavaliers": "CLE", "mavs": "DAL", "mavericks": "DAL", "nuggets": "DEN", "pistons": "DET",
+    "warriors": "GSW", "rockets": "HOU", "pacers": "IND", "clippers": "LAC", "lakers": "LAL",
+    "grizzlies": "MEM", "heat": "MIA", "bucks": "MIL", "timberwolves": "MIN", "pelicans": "NOP",
+    "knicks": "NYK", "thunder": "OKC", "magic": "ORL", "sixers": "PHI", "76ers": "PHI",
+    "suns": "PHX", "blazers": "POR", "kings": "SAC", "spurs": "SAS", "raptors": "TOR",
+    "jazz": "UTA", "wizards": "WAS"
 }
 
 def normalize_team_input(user_input):
