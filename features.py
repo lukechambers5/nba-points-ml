@@ -3,6 +3,19 @@ from nba_api.stats.static import players
 import pandas as pd
 import unicodedata
 from datetime import datetime
+import requests
+from nba_api.stats.library.http import NBAStatsHTTP
+
+NBAStatsHTTP._session = requests.Session()
+NBAStatsHTTP._session.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                  '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Origin': 'https://www.nba.com',
+    'Referer': 'https://www.nba.com/',
+    'x-nba-stats-origin': 'stats',
+    'x-nba-stats-token': 'true'
+})
 
 # Cache API responses in memory
 CACHE = {
@@ -44,6 +57,7 @@ def get_recent_avg_pts(player_id, num_games=5):
             log = playergamelog.PlayerGameLog(player_id=player_id, season='2025', timeout=5)
             CACHE["logs"][player_id] = log.get_data_frames()[0]
         df = CACHE["logs"][player_id]
+        print(f"[get_recent_avg_pts] Sample data:\n{df.head()}")
         return df['PTS'].head(num_games).mean()
     except Exception as e:
         print(f"[get_recent_avg_pts] Error: {e}")
