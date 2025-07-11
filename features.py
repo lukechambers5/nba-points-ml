@@ -43,6 +43,7 @@ def normalize_name(name):
 
 def get_player_id(player_name):
     input_name = normalize_name(player_name)
+    
     for p in CACHE["players"]:
         if normalize_name(p['full_name']) == input_name:
             return p['id']
@@ -54,15 +55,11 @@ def get_player_id(player_name):
 def get_recent_avg_pts(player_id, num_games=5):
     try:
         if player_id not in CACHE["logs"]:
-            log = playergamelog.PlayerGameLog(player_id=player_id, season='2025', timeout=5)
+            log = playergamelog.PlayerGameLog(player_id=player_id, season='2023', timeout=5)
             CACHE["logs"][player_id] = log.get_data_frames()[0]
         df = CACHE["logs"][player_id]
-        print(f"[get_recent_avg_pts] DF columns: {df.columns}")
-        print(f"[get_recent_avg_pts] DF head:\n{df.head()}")
-        print(f"[get_recent_avg_pts] DF shape: {df.shape}")
         return df['PTS'].head(num_games).mean()
     except Exception as e:
-        print(f"[get_recent_avg_pts] Error: {e}")
         return 0
 
 def get_career_ppg(player_id):
@@ -70,23 +67,30 @@ def get_career_ppg(player_id):
         if player_id not in CACHE["common_info"]:
             info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
             CACHE["common_info"][player_id] = info.get_data_frames()
-        _, career_df = CACHE["common_info"][player_id]
-        return career_df['PTS'].values[0]
+        frames = CACHE["common_info"][player_id]
+        career_df = frames[1] if len(frames) > 1 else pd.DataFrame()
+        return career_df['PTS'].values[0] if not career_df.empty else 0
     except Exception as e:
-        print(f"[get_career_ppg] Error: {e}")
         return 0
+
+
 
 def get_vs_team_avg(player_id, opponent_abbr):
     try:
         if player_id not in CACHE["logs"]:
-            log = playergamelog.PlayerGameLog(player_id=player_id, season='2025', timeout=5)
+            log = playergamelog.PlayerGameLog(player_id=player_id, season='2023', timeout=5)
             CACHE["logs"][player_id] = log.get_data_frames()[0]
         df = CACHE["logs"][player_id]
-        vs_df = df[df['MATCHUP'].str.contains(opponent_abbr)]
+
+        # Normalize MATCHUP
+        df['MATCHUP'] = df['MATCHUP'].str.strip().str.upper()
+
+        # Filter rows
+        vs_df = df[df['MATCHUP'].str.contains(opponent_abbr.upper(), na=False)]
         return vs_df['PTS'].mean() if not vs_df.empty else 0
     except Exception as e:
-        print(f"[get_vs_team_avg] Error: {e}")
         return 0
+
 
 def extract_features(player_name, opponent_input):
     player_id = get_player_id(player_name)
@@ -95,21 +99,39 @@ def extract_features(player_name, opponent_input):
 
     opponent_abbr = normalize_team_input(opponent_input)
 
-    recent = get_recent_avg_pts(player_id)
-    career = get_career_ppg(player_id)
-    vs_team = get_vs_team_avg(player_id, opponent_abbr)
+    try:
+        recent = get_recent_avg_pts(player_id)
+    except Exception as e:
+        return None
+
+    try:
+        career = get_career_ppg(player_id)
+    except Exception as e:
+        return None
+
+    try:
+        vs_team = get_vs_team_avg(player_id, opponent_abbr)
+    except Exception as e:
+        return None
 
     try:
         if player_id not in CACHE["common_info"]:
             info = commonplayerinfo.CommonPlayerInfo(player_id=player_id)
             CACHE["common_info"][player_id] = info.get_data_frames()
-        bio_df, _ = CACHE["common_info"][player_id]
-        info = bio_df.iloc[0]
-    except Exception as e:
-        print(f"[extract_features] Error fetching metadata: {e}")
-        info = {}
 
-    birthdate_str = info.get('BIRTHDATE') if info else None
+        bio_df = CACHE["common_info"][player_id][0]
+
+        if bio_df.empty:
+            return None
+
+        info_row = bio_df.iloc[0]
+    except Exception as e:
+        import traceback
+        return None
+
+
+    birthdate_str = info_row['BIRTHDATE'] if 'BIRTHDATE' in bio_df.columns else None
+
     try:
         birthdate = datetime.fromisoformat(birthdate_str) if birthdate_str else None
         age = (datetime.now() - birthdate).days // 365 if birthdate else None
@@ -117,14 +139,15 @@ def extract_features(player_name, opponent_input):
         age = None
 
     meta = {
-        'full_name': info.get('DISPLAY_FIRST_LAST', 'Unknown'),
-        'team': info.get('TEAM_NAME', 'Unknown'),
-        'position': info.get('POSITION', 'Unknown'),
-        'height': info.get('HEIGHT', 'Unknown'),
-        'weight': info.get('WEIGHT', 'Unknown'),
+        'full_name': info_row.get('DISPLAY_FIRST_LAST', 'Unknown') if isinstance(info_row, dict) else info_row.get('DISPLAY_FIRST_LAST', 'Unknown') if 'DISPLAY_FIRST_LAST' in info_row else 'Unknown',
+        'team': info_row.get('TEAM_NAME', 'Unknown') if 'TEAM_NAME' in info_row else 'Unknown',
+        'position': info_row.get('POSITION', 'Unknown') if 'POSITION' in info_row else 'Unknown',
+        'height': info_row.get('HEIGHT', 'Unknown') if 'HEIGHT' in info_row else 'Unknown',
+        'weight': info_row.get('WEIGHT', 'Unknown') if 'WEIGHT' in info_row else 'Unknown',
         'age': age,
         'id': player_id
     }
+
 
     features = {
         'recent_ppg': recent,
@@ -132,7 +155,13 @@ def extract_features(player_name, opponent_input):
         'vs_team_ppg': vs_team,
     }
 
-    return {
-        'features': pd.DataFrame([features]),
-        'meta': meta
-    }
+    try:
+        df = pd.DataFrame([features])
+        return {
+            'features': df,
+            'meta': meta
+        }
+    except Exception as e:
+        import traceback
+        return None
+

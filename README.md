@@ -1,6 +1,6 @@
 # NBA Player Points Predictor
 
-**[Live Site → (coming soon)](https://yourdeploymentlink.com)**
+**[Live Site](https://nba-points-predictor.fly.dev/)**
 
 NBA Player Points Predictor is a web app that lets you **predict how many points an NBA player will score** in an upcoming game. It uses real-time data from the NBA API along with a machine learning model trained on past performance.
 

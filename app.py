@@ -2,15 +2,19 @@ from flask import Flask, request, render_template
 import pickle
 from features import extract_features
 import numpy as np
-import pandas as pd
 
 app = Flask(__name__)
 
 # Load model and feature names
-with open('model.pkl', 'rb') as f:
-    model_data = pickle.load(f)
-    model = model_data['model']
-    feature_names = model_data['feature_names']
+try:
+    with open('model.pkl', 'rb') as f:
+        model_data = pickle.load(f)
+        model = model_data['model']
+        feature_names = model_data['feature_names']
+except Exception as e:
+    model = None
+    feature_names = []
+
 
 @app.route('/')
 def home():
@@ -28,7 +32,7 @@ def predict():
     except Exception as e:
         return render_template('error.html', message="The NBA data couldn't be fetched. Try again.")
 
-    features_df = result_data['features']
+    features_df = result_data['features'].fillna(0) 
     meta = result_data['meta']
 
     # Align features with training column order
@@ -38,7 +42,7 @@ def predict():
         return f"Missing feature(s): {e}"
 
     prediction = model.predict(input_df)[0]
-    input_array = input_df.values  # <-- Convert to plain NumPy array
+    input_array = input_df.values 
     all_preds = [tree.predict(input_array)[0] for tree in model.estimators_]
     std_dev = np.std(all_preds)
     confidence = max(0.0, min(1.0, 1.0 - std_dev / 10))
