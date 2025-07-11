@@ -247,4 +247,3 @@ def extract_features(player_name, opponent_input):
     except Exception as e:
         import traceback
         return None
-

@@ -1,5 +1,5 @@
 Flask
-nba_api
+nba_api>=1.1.9
 pandas
 scikit-learn
 requests
