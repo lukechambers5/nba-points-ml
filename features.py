@@ -137,13 +137,26 @@ def get_player_id(player_name):
 
 def get_recent_avg_pts(player_id, num_games=5):
     try:
-        if player_id not in CACHE["logs"]:
-            log = playergamelog.PlayerGameLog(player_id=player_id, season='2023', timeout=5)
-            CACHE["logs"][player_id] = log.get_data_frames()[0]
-        df = CACHE["logs"][player_id]
+        df = CACHE["logs"].get(player_id)  # Get cached value if exists
+        if df is None or df.empty:
+            log = playergamelog.PlayerGameLog(player_id=player_id, season='ALL', timeout=5)
+            df = log.get_data_frames()[0]
+            if df.empty:
+                print(f"No games found for player {player_id}")
+                return 0
+
+            df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'])
+            df_sorted = df.sort_values(by='GAME_DATE', ascending=False)
+            CACHE["logs"][player_id] = df_sorted
+            return round(df_sorted['PTS'].head(num_games).mean(), 2)
+
+
         return df['PTS'].head(num_games).mean()
+
     except Exception as e:
+        print("Error in get_recent_avg_pts:", e)
         return 0
+
 
 def get_career_ppg(player_id):
     try:
@@ -175,18 +188,17 @@ def get_vs_team_avg(player_id, opponent_abbr):
         return 0
 
 
+
 def extract_features(player_name, opponent_input):
     player_id = get_player_id(player_name)
     if not player_id:
         return None
 
     opponent_abbr = normalize_team_input(opponent_input)
-
     try:
         recent = get_recent_avg_pts(player_id)
     except Exception as e:
         return None
-
     try:
         career = get_career_ppg(player_id)
     except Exception as e:
